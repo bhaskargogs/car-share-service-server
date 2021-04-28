@@ -6,6 +6,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.modelmapper.ModelMapper;
+import org.sharing.car.domainvalue.OnlineStatus;
+import org.sharing.car.dto.DriverDTO;
 import org.sharing.car.entity.Driver;
 import org.sharing.car.exception.InvalidConstraintsException;
 import org.sharing.car.repository.DriverRepository;
@@ -26,6 +29,9 @@ public class DriverServiceTest {
     @InjectMocks
     private DriverService driverService;
 
+    @Mock
+    private ModelMapper mapper;
+
     @Test
     public void createNullDriver() {
         when(driverRepository.save(null)).thenThrow(InvalidConstraintsException.class);
@@ -34,8 +40,11 @@ public class DriverServiceTest {
 
     @Test
     public void createValidDriver() {
-        Driver driver = new Driver(1l, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, ZonedDateTime.now(), ZonedDateTime.now());
-        when(driverRepository.save(driver)).thenReturn(driver);
-        assertEquals(driver, driverService.createDriver(driver));
+        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
+        when(mapper.map(driverDTO, Driver.class)).thenReturn(driverEntity);
+        when(mapper.map(driverEntity, DriverDTO.class)).thenReturn(driverDTO);
+        when(driverRepository.save(driverEntity)).thenAnswer(invocation -> invocation.getArgument(0));
+        assertEquals(driverDTO, driverService.createDriver(driverDTO));
     }
 }
