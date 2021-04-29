@@ -18,6 +18,7 @@ package org.sharing.car.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.sharing.car.domainvalue.GeoCoordinate;
 import org.sharing.car.domainvalue.OnlineStatus;
 
 import javax.validation.constraints.Email;
@@ -46,6 +47,8 @@ public class DriverCreationDTO {
     @Max(value = 120, message = "Age must be less than 120")
     private int age;
 
+    private GeoCoordinate coordinate;
+
     private final OnlineStatus status = OnlineStatus.ONLINE;
 
     private final ZonedDateTime createdDate = ZonedDateTime.now();
@@ -61,6 +64,10 @@ public class DriverCreationDTO {
         driverDTO.setLastName(driverCreationDTO.getLastName());
         driverDTO.setEmail(driverCreationDTO.getEmail());
         driverDTO.setPassword(driverCreationDTO.getPassword());
+        GeoCoordinate coordinate = driverCreationDTO.getCoordinate();
+        if (coordinate != null) {
+            driverDTO.setCoordinate(coordinate);
+        }
         if (driverCreationDTO.getAge() != 0) {
             driverDTO.setAge(driverCreationDTO.getAge());
         }

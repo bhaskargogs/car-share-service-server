@@ -18,57 +18,90 @@ package org.sharing.car.entity;
 
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.sharing.car.domainvalue.GeoCoordinate;
 import org.sharing.car.domainvalue.OnlineStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
-@Data
+
 @Entity
 @Table(name = "drivers")
 public class Driver implements Serializable {
 
+    @Getter
+    @Setter
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Getter
+    @Setter
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
+    @Getter
+    @Setter
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
+    @Getter
+    @Setter
     @Column(name = "email", nullable = false)
     private String email;
 
+    @Getter
+    @Setter
     @Column(name = "password", nullable = false)
     private String password;
 
+    @Getter
+    @Setter
     @Column(name = "age", nullable = false)
     private int age;
 
+    @Getter
+    @Embedded
+    private GeoCoordinate coordinate;
+
+    @Getter
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private OnlineStatus status;
 
+    @Getter
+    @Setter
     @Column(name = "created_date", nullable = false)
     private ZonedDateTime createdDate;
 
+    @Getter
+    @Setter
     @Column(name = "updated_date", nullable = false)
     private ZonedDateTime updatedDate;
 
     private Driver() {
     }
 
-    public Driver(String firstName, String lastName, String email, String password, int age, OnlineStatus status, ZonedDateTime createdDate, ZonedDateTime updatedDate) {
+    public Driver(String firstName, String lastName, String email,
+                  String password, int age, GeoCoordinate coordinate,
+                  OnlineStatus status, ZonedDateTime createdDate, ZonedDateTime updatedDate) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.password = password;
+        this.coordinate = coordinate;
         this.age = age;
         this.status = status;
         this.createdDate = createdDate;
         this.updatedDate = updatedDate;
+    }
+
+    public void setCoordinate(GeoCoordinate coordinate) {
+        this.coordinate = coordinate;
+        this.updatedDate = ZonedDateTime.now();
     }
 }

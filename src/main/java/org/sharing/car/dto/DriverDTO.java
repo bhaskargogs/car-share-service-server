@@ -19,6 +19,7 @@ package org.sharing.car.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sharing.car.domainvalue.GeoCoordinate;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -33,6 +34,7 @@ public class DriverDTO implements Serializable {
     private String email;
     private String password;
     private int age;
+    private GeoCoordinate coordinate;
     private String status;
     private ZonedDateTime createdDate;
     private ZonedDateTime updatedDate;

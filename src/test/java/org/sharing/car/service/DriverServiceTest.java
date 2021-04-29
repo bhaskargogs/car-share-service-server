@@ -23,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.sharing.car.domainvalue.GeoCoordinate;
 import org.sharing.car.domainvalue.OnlineStatus;
 import org.sharing.car.dto.DriverDTO;
 import org.sharing.car.entity.Driver;
@@ -56,8 +57,8 @@ public class DriverServiceTest {
 
     @Test
     public void createValidDriver() {
-        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
-        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
+        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23),"ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
         when(mapper.map(driverDTO, Driver.class)).thenReturn(driverEntity);
         when(mapper.map(driverEntity, DriverDTO.class)).thenReturn(driverDTO);
         when(driverRepository.save(driverEntity)).thenAnswer(invocation -> invocation.getArgument(0));

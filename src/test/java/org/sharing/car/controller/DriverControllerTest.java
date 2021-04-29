@@ -16,9 +16,9 @@
 
 package org.sharing.car.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.sharing.car.domainvalue.GeoCoordinate;
 import org.sharing.car.dto.DriverCreationDTO;
 import org.sharing.car.dto.DriverDTO;
 import org.sharing.car.service.DriverService;
@@ -38,7 +38,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(DriverController.class)
-@Slf4j
 public class DriverControllerTest {
 
     @Autowired
@@ -58,7 +57,7 @@ public class DriverControllerTest {
 
     @Test
     public void testCreateValidDriver_Returns201() throws Exception {
-        DriverCreationDTO creationDTO = new DriverCreationDTO("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43);
+        DriverCreationDTO creationDTO = new DriverCreationDTO("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23));
         when(driverService.createDriver(any(DriverDTO.class))).thenAnswer(invocation -> invocation.getArgument(0));
         mockMvc.perform(MockMvcRequestBuilders.post("/drivers")
                 .contentType(MediaType.APPLICATION_JSON)

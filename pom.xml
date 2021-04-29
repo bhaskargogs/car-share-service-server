@@ -53,12 +53,6 @@
 			<artifactId>modelmapper</artifactId>
 			<version>${modelmapper.version}</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-annotations -->
-		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-annotations</artifactId>
-			<version>${jackson.version}</version>
-		</dependency>
 		<!-- https://mvnrepository.com/artifact/io.springfox/springfox-swagger2 -->
 		<dependency>
 			<groupId>io.springfox</groupId>
