@@ -22,6 +22,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.sharing.car.domainvalue.GeoCoordinate;
 import org.sharing.car.domainvalue.OnlineStatus;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -76,11 +77,13 @@ public class Driver implements Serializable {
     @Getter
     @Setter
     @Column(name = "created_date", nullable = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private ZonedDateTime createdDate;
 
     @Getter
     @Setter
     @Column(name = "updated_date", nullable = false)
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private ZonedDateTime updatedDate;
 
     private Driver() {

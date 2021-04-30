@@ -39,4 +39,9 @@ public class DriverController {
         DriverDTO driverDTO = DriverCreationDTO.makeDriverDTO(driverCreationRequest);
         return new ResponseEntity<>(driverService.createDriver(driverDTO), HttpStatus.CREATED);
     }
+
+    @GetMapping("{id}")
+    public DriverDTO findDriverById(@PathVariable Long id) {
+        return driverService.findDriverById(id);
+    }
 }
