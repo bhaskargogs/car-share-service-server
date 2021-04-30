@@ -27,6 +27,8 @@ import org.sharing.car.repository.DriverRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -47,18 +49,30 @@ public class DriverService {
         return mapper.map(newDriver, DriverDTO.class);
     }
 
+    @Transactional
     public DriverDTO findDriverById(Long id) throws DriverNotFoundException {
         Driver driver;
-        try {
-            driver = DriverService.findById(repository, id);
-        } catch (DriverNotFoundException ex) {
-            log.error("DriverNotFoundException: findDriverById() Failed to find driver with id " + id, ex);
-            throw new DriverNotFoundException(ex.getMessage());
-        }
+        driver = DriverService.findById(repository, id).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID " + id));
         return mapper.map(driver, DriverDTO.class);
     }
 
-    private static Driver findById(DriverRepository repository, Long id) {
-        return repository.findById(id).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID " + id));
+    @Transactional
+    public DriverDTO updateDriver(DriverDTO driverDTO) throws DriverNotFoundException {
+        Driver updatedDriver = null;
+        try {
+            Optional<Driver> driver = DriverService.findById(repository, driverDTO.getId());
+            if (driver.isPresent()) {
+                updatedDriver = repository.save(mapper.map(driverDTO, Driver.class));
+            }
+        } catch (DriverNotFoundException ex) {
+            log.error("DriverNotFoundException: updateDriver() Failed to find driver with id " + driverDTO.getId(), ex);
+            throw new DriverNotFoundException(ex.getMessage());
+        }
+        return mapper.map(updatedDriver, DriverDTO.class);
     }
+
+    private static Optional<Driver> findById(DriverRepository repository, Long id) {
+        return repository.findById(id);
+    }
+
 }

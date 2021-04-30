@@ -81,4 +81,22 @@ public class DriverServiceTest {
         when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity));
         assertEquals(driverDTO, driverService.findDriverById(1L));
     }
+
+    @Test
+    public void testUpdateInvalidDriver() {
+        DriverDTO driverDTO = new DriverDTO(2L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        when(driverRepository.findById(2L)).thenThrow(DriverNotFoundException.class);
+        assertThrows(DriverNotFoundException.class, () -> driverService.updateDriver(driverDTO));
+    }
+
+    @Test
+    public void testUpdateValidDriver() {
+        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
+        when(mapper.map(driverDTO, Driver.class)).thenReturn(driverEntity);
+        when(mapper.map(driverEntity, DriverDTO.class)).thenReturn(driverDTO);
+        when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity));
+        when(driverRepository.save(driverEntity)).thenReturn(driverEntity);
+        assertEquals(driverDTO, driverService.updateDriver(driverDTO));
+    }
 }
