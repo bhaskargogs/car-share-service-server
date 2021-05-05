@@ -14,16 +14,21 @@
  *    limitations under the License.
  */
 
-package org.sharing.car;
+package org.sharing.car.dto;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.mapstruct.Mapper;
+import org.sharing.car.entity.Driver;
 
-@SpringBootApplication
-public class CarShareServiceServerApplication {
+@Mapper(
+        componentModel = "spring"
+)
+public interface MapStructMapper {
 
-    public static void main(String[] args) {
-        SpringApplication.run(CarShareServiceServerApplication.class, args);
-    }
+    DriverDTO makeDriverDTO(DriverCreationDTO driverCreationDTO);
 
+    DriverDTO makeDriverDTO(DriverUpdationDTO driverCreationDTO);
+
+    DriverDTO makeDriverDTO(Driver driver);
+
+    Driver makeDriver(DriverDTO driverDTO);
 }
