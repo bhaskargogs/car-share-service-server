@@ -16,7 +16,6 @@
 
 package org.sharing.car.service;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,10 +35,9 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@Slf4j
 public class DriverServiceTest {
 
     @Mock
@@ -98,5 +96,21 @@ public class DriverServiceTest {
         when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity));
         when(driverRepository.save(driverEntity)).thenReturn(driverEntity);
         assertEquals(driverDTO, driverService.updateDriver(driverDTO, 1L));
+    }
+
+    @Test
+    public void testDeleteInvalidDriver() {
+        DriverDTO driverDTO = new DriverDTO(2L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        when(driverRepository.findById(2L)).thenThrow(DriverNotFoundException.class);
+        assertThrows(DriverNotFoundException.class, () -> driverService.deleteDriver(2L));
+    }
+
+    @Test
+    public void testDeleteValidDriver() {
+        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
+        when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity));
+        driverService.deleteDriver(1L);
+        verify(driverRepository, times(1)).deleteById(1L);
     }
 }

@@ -16,7 +16,6 @@
 
 package org.sharing.car.controller;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.sharing.car.domainvalue.GeoCoordinate;
@@ -43,12 +42,11 @@ import java.time.ZonedDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(DriverController.class)
-@Slf4j
 public class DriverControllerTest {
 
     @Autowired
@@ -61,7 +59,7 @@ public class DriverControllerTest {
     private MapStructMapper mapper;
 
     @Test
-    public void testCreateNullDriver_Returns400() throws Exception {
+    public void testCreateInvalidDriver_Returns400() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.post("/drivers")
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON)
@@ -87,7 +85,7 @@ public class DriverControllerTest {
     }
 
     @Test
-    public void testFindDriverWithInvalidId_Returns404() throws Exception {
+    public void testFindInvalidDriver_Returns404() throws Exception {
         when(driverService.findDriverById(5L)).thenThrow(DriverNotFoundException.class);
         mockMvc.perform(MockMvcRequestBuilders.get("/drivers/5")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -96,7 +94,7 @@ public class DriverControllerTest {
     }
 
     @Test
-    public void testFindDriverWithValidId_Returns200() throws Exception {
+    public void testFindValidDriver_Returns200() throws Exception {
         DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.OFFLINE.name(), ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")), ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")));
         when(driverService.findDriverById(1L)).thenReturn(driverDTO);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/drivers/1")
@@ -137,5 +135,24 @@ public class DriverControllerTest {
 
         DriverDTO expected = (DriverDTO) JsonMapper.deserialize(DriverDTO.class, result.getResponse().getContentAsString());
         assertEquals(expected, driverDTO);
+    }
+
+    @Test
+    public void testDeleteInvalidDriver_Returns404() throws Exception {
+        doThrow(DriverNotFoundException.class).when(driverService).deleteDriver(5L);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/drivers/5")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void testDeleteValidDriver_Return200() throws Exception {
+        doNothing().when(driverService).deleteDriver(1L);
+        mockMvc.perform(MockMvcRequestBuilders.delete("/drivers/1")
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+        verify(driverService, times(1)).deleteDriver(1L);
     }
 }

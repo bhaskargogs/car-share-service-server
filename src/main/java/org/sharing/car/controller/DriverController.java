@@ -54,4 +54,10 @@ public class DriverController {
     public ResponseEntity<DriverDTO> updateDriver(@Valid @RequestBody DriverUpdationDTO driverUpdationDTO, @PathVariable Long id) {
         return new ResponseEntity<>(driverService.updateDriver(mapper.makeDriverDTO(driverUpdationDTO), id), HttpStatus.OK);
     }
+
+    @DeleteMapping("{id}")
+    public void deleteDriver(@PathVariable Long id) {
+        driverService.deleteDriver(id);
+    }
+
 }

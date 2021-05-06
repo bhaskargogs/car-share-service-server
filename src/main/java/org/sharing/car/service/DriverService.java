@@ -58,15 +58,11 @@ public class DriverService {
 
     @Transactional
     public DriverDTO updateDriver(DriverDTO driverDTO, Long id) throws DriverNotFoundException {
-        Driver updatedDriver = null;
-        try {
-            Optional<Driver> driver = DriverService.findById(repository, id);
-            if (driver.isPresent()) {
-                updatedDriver = repository.save(mapper.makeDriver(driverDTO));
-            }
-        } catch (DriverNotFoundException ex) {
-            log.error("DriverNotFoundException: updateDriver() Failed to find driver with id " + id, ex);
-            throw new DriverNotFoundException(ex.getMessage());
+        Driver updatedDriver;
+        if (DriverService.findById(repository, id).isPresent()) {
+            updatedDriver = repository.save(mapper.makeDriver(driverDTO));
+        } else {
+            throw new DriverNotFoundException("DriverNotFoundException: updateDriver() Driver not found with ID " + id);
         }
         return mapper.makeDriverDTO(updatedDriver);
     }
@@ -75,4 +71,11 @@ public class DriverService {
         return repository.findById(id);
     }
 
+    public void deleteDriver(Long id) throws DriverNotFoundException {
+        if (DriverService.findById(repository, id).isPresent()) {
+            repository.deleteById(id);
+        } else {
+            throw new DriverNotFoundException("DriverNotFoundException: deleteDriver() Driver not found with ID " + id);
+        }
+    }
 }
