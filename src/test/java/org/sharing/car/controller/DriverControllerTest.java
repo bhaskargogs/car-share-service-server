@@ -68,7 +68,7 @@ public class DriverControllerTest {
 
     @BeforeEach
     public void setUp() {
-        creationDTO = new DriverCreationDTO("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE);
+        creationDTO = new DriverCreationDTO("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23));
         updationDTO = new DriverUpdationDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE);
         driver1 = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE");
         driver2 = new DriverDTO(2L, "John", "Maier", "jmaeir@t-online.com", "abc234", 26, new GeoCoordinate(64.25, 100.25), "ONLINE");
