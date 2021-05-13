@@ -31,6 +31,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -65,12 +66,21 @@ public class DriverService {
 
     @Transactional
     public DriverDTO updateDriver(DriverDTO driverDTO, Long id) throws DriverNotFoundException {
+        Optional<Driver> driverToUpdate = DriverService.findById(repository, id);
         Driver updatedDriver;
-        if (DriverService.findById(repository, id).isPresent()) {
-            updatedDriver = repository.save(mapper.map(driverDTO, Driver.class));
-        } else {
-            throw new DriverNotFoundException("DriverNotFoundException: updateDriver() Driver not found with ID " + id);
+        try {
+            if (driverToUpdate.isPresent()) {
+                updatedDriver = mapper.map(driverDTO, Driver.class);
+                updatedDriver.setUpdatedDate(ZonedDateTime.now());
+                updatedDriver = repository.save(updatedDriver);
+            } else {
+                throw new DriverNotFoundException("DriverNotFoundException: updateDriver() Driver not found with ID " + id);
+            }
+        } catch (InvalidConstraintsException ex) {
+            log.error("InvalidDriverException: updateDriver() Failed to update Driver {} with driver id {} " + driverDTO, id, ex);
+            throw new InvalidConstraintsException(ex.getMessage());
         }
+
         return mapper.map(updatedDriver, DriverDTO.class);
     }
 
