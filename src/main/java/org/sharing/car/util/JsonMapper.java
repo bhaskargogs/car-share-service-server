@@ -39,31 +39,11 @@ import java.util.List;
 
 @Slf4j
 public class JsonMapper {
-
-/*
-    public static String mapToJson(Object obj) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        return objectMapper.writeValueAsString(obj);
-    }
-
-    public static <T> T mapFromJson(String json, Class<T> clazz)
-            throws JsonParseException, JsonMappingException, IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.registerModule(new ParameterNamesModule());
-        objectMapper.registerModule(new Jdk8Module());
-        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        objectMapper.setDateFormat(new StdDateFormat());
-        return objectMapper.readValue(json, clazz);
-    }
-*/
-
     public static <T> T mapListFromJson(String json, TypeReference<List<DriverDTO>> clazz)
             throws JsonParseException, JsonMappingException, IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new SimpleModule().addDeserializer(GeoCoordinate.class, new GeoCoordinateDerializer()));
         objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         return (T) objectMapper.readValue(json, clazz);
     }
@@ -99,21 +79,5 @@ public class JsonMapper {
         return obj;
     }
 
-    public static JsonNode parse(String json) {
-        ObjectMapper mapper = new ObjectMapper();
-        JsonFactory factory = mapper.getFactory();
-        JsonNode rootNode = null;
-
-        try {
-            JsonParser parser = factory.createParser(json);
-
-            rootNode = mapper.readTree(parser);
-        } catch (IOException ioe) {
-            log.info(ioe.getMessage());
-            throw new InvalidJsonException(ioe);
-        }
-
-        return rootNode;
-    }
 
 }

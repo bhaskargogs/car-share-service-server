@@ -27,6 +27,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @CrossOrigin
 @RestController
@@ -58,6 +59,14 @@ public class DriverController {
     @DeleteMapping("{id}")
     public void deleteDriver(@PathVariable Long id) {
         driverService.deleteDriver(id);
+    }
+
+    @GetMapping
+    public ResponseEntity<List<DriverDTO>> findAllDrivers(@RequestParam(value = "pageNo", defaultValue = "0") int pageNo,
+                                                          @RequestParam(value = "pageSize", defaultValue = "20") int pageSize,
+                                                          @RequestParam(value = "direction", defaultValue = "asc") String direction,
+                                                          @RequestParam(value = "field", defaultValue = "id") String field) {
+        return new ResponseEntity<>(driverService.findAllDrivers(pageNo, pageSize, direction, field), HttpStatus.OK);
     }
 
 }

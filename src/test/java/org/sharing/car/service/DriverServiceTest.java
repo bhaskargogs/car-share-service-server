@@ -16,6 +16,7 @@
 
 package org.sharing.car.service;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -29,8 +30,11 @@ import org.sharing.car.entity.Driver;
 import org.sharing.car.exception.DriverNotFoundException;
 import org.sharing.car.exception.InvalidConstraintsException;
 import org.sharing.car.repository.DriverRepository;
+import org.springframework.data.domain.*;
 
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -49,6 +53,25 @@ public class DriverServiceTest {
     @Mock
     private MapStructMapper mapper;
 
+    List<DriverDTO> drivers = new ArrayList<>();
+    List<Driver> driverEntities = new ArrayList<>();
+    DriverDTO driver1;
+    Driver driverEntity1;
+    DriverDTO driver2;
+    Driver driverEntity2;
+
+    @BeforeEach
+    public void setUp() {
+        driver1 = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        driverEntity1 = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
+        driver2 = new DriverDTO(2L, "John", "Maier", "jmaeir@t-online.com", "abc234", 26, new GeoCoordinate(64.25, 100.25), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
+        driverEntity2 = new Driver("John", "Maier", "jmaeir@t-online.com", "abc234", 26, new GeoCoordinate(64.25, 100.25), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
+        driverEntities.add(driverEntity1);
+        driverEntities.add(driverEntity2);
+        drivers.add(driver1);
+        drivers.add(driver2);
+    }
+
     @Test
     public void testCreateNullDriver() {
         when(driverRepository.save(null)).thenThrow(InvalidConstraintsException.class);
@@ -57,12 +80,10 @@ public class DriverServiceTest {
 
     @Test
     public void testCreateValidDriver() {
-        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
-        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
-        when(mapper.makeDriver(driverDTO)).thenReturn(driverEntity);
-        when(mapper.makeDriverDTO(driverEntity)).thenReturn(driverDTO);
-        when(driverRepository.save(driverEntity)).thenAnswer(invocation -> invocation.getArgument(0));
-        assertEquals(driverDTO, driverService.createDriver(driverDTO));
+        when(mapper.makeDriver(driver1)).thenReturn(driverEntity1);
+        when(mapper.makeDriverDTO(driverEntity1)).thenReturn(driver1);
+        when(driverRepository.save(driverEntity1)).thenAnswer(invocation -> invocation.getArgument(0));
+        assertEquals(driver1, driverService.createDriver(driver1));
     }
 
     @Test
@@ -72,35 +93,39 @@ public class DriverServiceTest {
     }
 
     @Test
+    public void testFindAllDrivers() {
+        Pageable pageable = PageRequest.of(0, 5, Sort.by("id").ascending());
+        Page<Driver> driverEntitiesPage = new PageImpl<>(driverEntities);
+        lenient().when(mapper.makeDriverDTO(driverEntity1)).thenReturn(driver1);
+        lenient().when(mapper.makeDriverDTO(driverEntity2)).thenReturn(driver2);
+        when(driverRepository.findAll(pageable)).thenReturn(driverEntitiesPage);
+        assertEquals(drivers, driverService.findAllDrivers(0, 5, "asc", "id"));
+    }
+
+    @Test
     public void testFindValidDriver() {
-        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
-        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
-        when(mapper.makeDriverDTO(driverEntity)).thenReturn(driverDTO);
-        when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity));
-        assertEquals(driverDTO, driverService.findDriverById(1L));
+        when(mapper.makeDriverDTO(driverEntity1)).thenReturn(driver1);
+        when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity1));
+        assertEquals(driver1, driverService.findDriverById(1L));
     }
 
     @Test
     public void testUpdateInvalidDriver() {
-        DriverDTO driverDTO = new DriverDTO(2L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
         when(driverRepository.findById(2L)).thenThrow(DriverNotFoundException.class);
-        assertThrows(DriverNotFoundException.class, () -> driverService.updateDriver(driverDTO, 2L));
+        assertThrows(DriverNotFoundException.class, () -> driverService.updateDriver(driver1, 2L));
     }
 
     @Test
     public void testUpdateValidDriver() {
-        DriverDTO driverDTO = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
-        Driver driverEntity = new Driver("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE, ZonedDateTime.now(), ZonedDateTime.now());
-        when(mapper.makeDriver(driverDTO)).thenReturn(driverEntity);
-        when(mapper.makeDriverDTO(driverEntity)).thenReturn(driverDTO);
-        when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity));
-        when(driverRepository.save(driverEntity)).thenReturn(driverEntity);
-        assertEquals(driverDTO, driverService.updateDriver(driverDTO, 1L));
+        when(driverRepository.findById(1L)).thenReturn(Optional.of(driverEntity1));
+        when(driverRepository.save(driverEntity1)).thenReturn(driverEntity1);
+        when(mapper.makeDriver(driver1)).thenReturn(driverEntity1);
+        when(mapper.makeDriverDTO(driverEntity1)).thenReturn(driver1);
+        assertEquals(driver1, driverService.updateDriver(driver1, 1L));
     }
 
     @Test
     public void testDeleteInvalidDriver() {
-        DriverDTO driverDTO = new DriverDTO(2L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now(), ZonedDateTime.now());
         when(driverRepository.findById(2L)).thenThrow(DriverNotFoundException.class);
         assertThrows(DriverNotFoundException.class, () -> driverService.deleteDriver(2L));
     }

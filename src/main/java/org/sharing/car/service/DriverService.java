@@ -24,10 +24,17 @@ import org.sharing.car.entity.Driver;
 import org.sharing.car.exception.DriverNotFoundException;
 import org.sharing.car.exception.InvalidConstraintsException;
 import org.sharing.car.repository.DriverRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -77,5 +84,16 @@ public class DriverService {
         } else {
             throw new DriverNotFoundException("DriverNotFoundException: deleteDriver() Driver not found with ID " + id);
         }
+    }
+
+    public List<DriverDTO> findAllDrivers(int pageNo, int pageSize, String direction, String fieldName) {
+        if (!direction.equalsIgnoreCase("asc") && !direction.equalsIgnoreCase("desc")) {
+            throw new InvalidConstraintsException("Invalid Direction value " + direction);
+        }
+        Pageable paging = PageRequest.of(pageNo, pageSize, (direction.equalsIgnoreCase("asc")) ? Sort.by(fieldName).ascending() : Sort.by(fieldName).descending());
+        Page<Driver> drivers = repository.findAll(paging);
+        return (drivers.hasContent()) ?
+                drivers.getContent().stream().map(mapper::makeDriverDTO).collect(Collectors.toList())
+                : new ArrayList<>();
     }
 }
