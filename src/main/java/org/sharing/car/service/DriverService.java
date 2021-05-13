@@ -18,8 +18,8 @@ package org.sharing.car.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.sharing.car.dto.DriverDTO;
-import org.sharing.car.dto.MapStructMapper;
 import org.sharing.car.entity.Driver;
 import org.sharing.car.exception.DriverNotFoundException;
 import org.sharing.car.exception.InvalidConstraintsException;
@@ -42,36 +42,36 @@ import java.util.stream.Collectors;
 public class DriverService {
 
     private final DriverRepository repository;
-    private final MapStructMapper mapper;
+    private final ModelMapper mapper;
 
     @Transactional
     public DriverDTO createDriver(DriverDTO driverDTO) throws InvalidConstraintsException {
         Driver newDriver;
         try {
-            newDriver = repository.save(mapper.makeDriver(driverDTO));
+            newDriver = repository.save(mapper.map(driverDTO, Driver.class));
         } catch (InvalidConstraintsException ex) {
             log.error("InvalidDriverException: createDriver() Failed to create Driver " + driverDTO, ex);
             throw new InvalidConstraintsException(ex.getMessage());
         }
-        return mapper.makeDriverDTO(newDriver);
+        return mapper.map(newDriver, DriverDTO.class);
     }
 
     @Transactional
     public DriverDTO findDriverById(Long id) throws DriverNotFoundException {
         Driver driver;
         driver = DriverService.findById(repository, id).orElseThrow(() -> new DriverNotFoundException("Driver not found with ID " + id));
-        return mapper.makeDriverDTO(driver);
+        return mapper.map(driver, DriverDTO.class);
     }
 
     @Transactional
     public DriverDTO updateDriver(DriverDTO driverDTO, Long id) throws DriverNotFoundException {
         Driver updatedDriver;
         if (DriverService.findById(repository, id).isPresent()) {
-            updatedDriver = repository.save(mapper.makeDriver(driverDTO));
+            updatedDriver = repository.save(mapper.map(driverDTO, Driver.class));
         } else {
             throw new DriverNotFoundException("DriverNotFoundException: updateDriver() Driver not found with ID " + id);
         }
-        return mapper.makeDriverDTO(updatedDriver);
+        return mapper.map(updatedDriver, DriverDTO.class);
     }
 
     private static Optional<Driver> findById(DriverRepository repository, Long id) {
@@ -93,7 +93,7 @@ public class DriverService {
         Pageable paging = PageRequest.of(pageNo, pageSize, (direction.equalsIgnoreCase("asc")) ? Sort.by(fieldName).ascending() : Sort.by(fieldName).descending());
         Page<Driver> drivers = repository.findAll(paging);
         return (drivers.hasContent()) ?
-                drivers.getContent().stream().map(mapper::makeDriverDTO).collect(Collectors.toList())
+                drivers.getContent().stream().map(driver -> mapper.map(driver, DriverDTO.class)).collect(Collectors.toList())
                 : new ArrayList<>();
     }
 }

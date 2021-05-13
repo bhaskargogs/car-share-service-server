@@ -16,17 +16,18 @@
 
 package org.sharing.car.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.sharing.car.domainvalue.GeoCoordinate;
 
 import java.io.Serializable;
-import java.time.ZonedDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class DriverDTO implements Serializable {
     private Long id;
     private String firstName;
@@ -36,6 +37,4 @@ public class DriverDTO implements Serializable {
     private int age;
     private GeoCoordinate coordinate;
     private String status;
-    private ZonedDateTime createdDate;
-    private ZonedDateTime updatedDate;
 }

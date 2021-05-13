@@ -16,10 +16,10 @@
 
 package org.sharing.car.controller;
 
+import org.modelmapper.ModelMapper;
 import org.sharing.car.dto.DriverCreationDTO;
 import org.sharing.car.dto.DriverDTO;
 import org.sharing.car.dto.DriverUpdationDTO;
-import org.sharing.car.dto.MapStructMapper;
 import org.sharing.car.service.DriverService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,11 +38,11 @@ public class DriverController {
     private DriverService driverService;
 
     @Autowired
-    private MapStructMapper mapper;
+    private ModelMapper mapper;
 
     @PostMapping
     public ResponseEntity<DriverDTO> createDriver(@Valid @RequestBody DriverCreationDTO driverCreationRequest) {
-        DriverDTO driverDTO = mapper.makeDriverDTO(driverCreationRequest);
+        DriverDTO driverDTO = DriverCreationDTO.makeDriverDTO(driverCreationRequest);
         return new ResponseEntity<>(driverService.createDriver(driverDTO), HttpStatus.CREATED);
     }
 
@@ -53,7 +53,7 @@ public class DriverController {
 
     @PutMapping("{id}")
     public ResponseEntity<DriverDTO> updateDriver(@Valid @RequestBody DriverUpdationDTO driverUpdationDTO, @PathVariable Long id) {
-        return new ResponseEntity<>(driverService.updateDriver(mapper.makeDriverDTO(driverUpdationDTO), id), HttpStatus.OK);
+        return new ResponseEntity<>(driverService.updateDriver(mapper.map(driverUpdationDTO, DriverDTO.class), id), HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")

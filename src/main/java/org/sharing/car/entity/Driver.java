@@ -17,7 +17,6 @@
 package org.sharing.car.entity;
 
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.sharing.car.domainvalue.GeoCoordinate;
@@ -78,20 +77,20 @@ public class Driver implements Serializable {
     @Setter
     @Column(name = "created_date", nullable = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private ZonedDateTime createdDate;
+    private ZonedDateTime createdDate = ZonedDateTime.now();
 
     @Getter
     @Setter
     @Column(name = "updated_date", nullable = false)
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    private ZonedDateTime updatedDate;
+    private ZonedDateTime updatedDate = ZonedDateTime.now();
 
     private Driver() {
     }
 
     public Driver(String firstName, String lastName, String email,
                   String password, int age, GeoCoordinate coordinate,
-                  OnlineStatus status, ZonedDateTime createdDate, ZonedDateTime updatedDate) {
+                  OnlineStatus status) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -99,8 +98,6 @@ public class Driver implements Serializable {
         this.coordinate = coordinate;
         this.age = age;
         this.status = status;
-        this.createdDate = createdDate;
-        this.updatedDate = updatedDate;
     }
 
     public void setCoordinate(GeoCoordinate coordinate) {

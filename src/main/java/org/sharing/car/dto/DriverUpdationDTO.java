@@ -61,8 +61,6 @@ public class DriverUpdationDTO {
     @Valid
     private OnlineStatus status;
 
-    private final ZonedDateTime updatedDate = ZonedDateTime.now();
-
     public DriverUpdationDTO(Long id, String firstName, String lastName, String email, String password, int age, GeoCoordinate coordinate, OnlineStatus status) {
         this.id = id;
         this.firstName = firstName;

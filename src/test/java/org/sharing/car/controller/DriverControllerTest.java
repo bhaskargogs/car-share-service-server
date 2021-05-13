@@ -20,12 +20,12 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.modelmapper.ModelMapper;
 import org.sharing.car.domainvalue.GeoCoordinate;
 import org.sharing.car.domainvalue.OnlineStatus;
 import org.sharing.car.dto.DriverCreationDTO;
 import org.sharing.car.dto.DriverDTO;
 import org.sharing.car.dto.DriverUpdationDTO;
-import org.sharing.car.dto.MapStructMapper;
 import org.sharing.car.exception.DriverNotFoundException;
 import org.sharing.car.service.DriverService;
 import org.sharing.car.util.JsonMapper;
@@ -38,8 +38,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,7 +58,7 @@ public class DriverControllerTest {
     private DriverService driverService;
 
     @MockBean
-    private MapStructMapper mapper;
+    private ModelMapper mapper;
 
     DriverCreationDTO creationDTO;
     DriverUpdationDTO updationDTO;
@@ -70,10 +68,10 @@ public class DriverControllerTest {
 
     @BeforeEach
     public void setUp() {
-        creationDTO = new DriverCreationDTO("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23));
+        creationDTO = new DriverCreationDTO("Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE);
         updationDTO = new DriverUpdationDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), OnlineStatus.ONLINE);
-        driver1 = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE", ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")), ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")));
-        driver2 = new DriverDTO(2L, "John", "Maier", "jmaeir@t-online.com", "abc234", 26, new GeoCoordinate(64.25, 100.25), "ONLINE", ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")), ZonedDateTime.now().withZoneSameInstant(ZoneId.of("UTC")));
+        driver1 = new DriverDTO(1L, "Allan", "Hufflepuff", "ahufflepuff@hotmail.com", "hotmail123", 43, new GeoCoordinate(35.32, 87.23), "ONLINE");
+        driver2 = new DriverDTO(2L, "John", "Maier", "jmaeir@t-online.com", "abc234", 26, new GeoCoordinate(64.25, 100.25), "ONLINE");
         drivers.add(driver1);
         drivers.add(driver2);
     }
@@ -89,7 +87,6 @@ public class DriverControllerTest {
 
     @Test
     public void testCreateValidDriver_Returns201() throws Exception {
-        when(mapper.makeDriverDTO(any(DriverCreationDTO.class))).thenReturn(driver1);
         when(driverService.createDriver(any(DriverDTO.class))).thenReturn(driver1);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/drivers")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -126,7 +123,7 @@ public class DriverControllerTest {
 
     @Test
     public void testUpdateInvalidDriver_Returns404() throws Exception {
-        when(mapper.makeDriverDTO(any(DriverUpdationDTO.class))).thenReturn(driver1);
+        when(mapper.map(any(DriverUpdationDTO.class), eq(DriverDTO.class))).thenReturn(driver1);
         when(driverService.updateDriver(any(DriverDTO.class), eq(1L))).thenThrow(DriverNotFoundException.class);
         mockMvc.perform(MockMvcRequestBuilders.put("/drivers/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -137,7 +134,7 @@ public class DriverControllerTest {
 
     @Test
     public void testUpdateValidDriver_Returns200() throws Exception {
-        when(mapper.makeDriverDTO(any(DriverUpdationDTO.class))).thenReturn(driver1);
+        when(mapper.map(any(DriverUpdationDTO.class), eq(DriverDTO.class))).thenReturn(driver1);
         when(driverService.updateDriver(any(DriverDTO.class), eq(1L))).thenReturn(driver1);
         MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/drivers/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -181,7 +178,8 @@ public class DriverControllerTest {
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk()).andReturn();
 
-        List<DriverDTO> expectedDrivers = JsonMapper.mapListFromJson(result.getResponse().getContentAsString(), new TypeReference<List<DriverDTO>>() {});
+        List<DriverDTO> expectedDrivers = JsonMapper.mapListFromJson(result.getResponse().getContentAsString(), new TypeReference<List<DriverDTO>>() {
+        });
         assertEquals(expectedDrivers, drivers);
     }
 }
