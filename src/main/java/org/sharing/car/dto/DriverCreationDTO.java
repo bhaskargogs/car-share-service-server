@@ -16,8 +16,6 @@
 
 package org.sharing.car.dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.sharing.car.domainvalue.GeoCoordinate;
@@ -51,9 +49,6 @@ public class DriverCreationDTO {
 
     @Valid
     private GeoCoordinate coordinate;
-
-    @JsonIgnore
-    private OnlineStatus status;
 
     private DriverCreationDTO() {
     }
